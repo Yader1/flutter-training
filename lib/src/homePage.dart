@@ -107,6 +107,69 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
+            ),
+            const SizedBox(height: 5.0),
+            Container(
+              height: 180.0,
+              width: MediaQuery.of(context).size.width,
+              margin: const EdgeInsets.only(top: 30.0),
+              child: Stack(
+                children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 120.0,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20.0),
+                      image: const DecorationImage(image: AssetImage("assets/card.jpg"), fit: BoxFit.fill),
+                      boxShadow: [
+                        BoxShadow(
+                          blurRadius: 40.0,
+                          offset: const Offset(8, 10),
+                          color: AppColors.gradientSecond.withOpacity(0.2)
+                        ),
+                        BoxShadow(
+                          blurRadius: 10.0,
+                          offset: const Offset(-1, -5),
+                          color: AppColors.gradientSecond.withOpacity(0.2)
+                        )
+                      ]
+                    ),
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 200.0,
+                    margin: const EdgeInsets.only(right: 200.0, bottom: 70.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20.0),
+                      image: const DecorationImage(image: AssetImage("assets/figure.png")),
+                    ),
+                  ),
+                  Container(
+                    width: double.maxFinite,
+                    height: 100.0,
+                    margin: const EdgeInsets.only(left: 150.0, top: 30.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("You are doing great", style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: AppColors.homePageDetail)),
+                        const SizedBox(height: 20.0,),
+                        RichText(
+                          text: TextSpan(
+                            text: "keep it up\n", 
+                            style: TextStyle(color: AppColors.homePagePlanColor, fontSize: 16.0),
+                            children: [
+                              TextSpan(
+                                text: "stick to your plan", 
+                                style: TextStyle(color: AppColors.homePagePlanColor, fontSize: 16.0),
+                              )
+                            ]
+                          )
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
             )
           ],
         ),
