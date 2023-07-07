@@ -1,4 +1,6 @@
-import 'dart:ui';
+
+import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:training_app/src/colors.dart';
@@ -11,6 +13,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List info = [];
+  _initData(){
+    DefaultAssetBundle.of(context).loadString("json/info.json").then((value){
+      info = json.decode(value);
+    });
+    log("SALIDA ${info.length}");
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,11 +128,11 @@ class _HomePageState extends State<HomePage> {
             Container(
               height: 180.0,
               width: MediaQuery.of(context).size.width,
-              margin: const EdgeInsets.only(top: 30.0),
               child: Stack(
                 children: [
                   Container(
                     width: MediaQuery.of(context).size.width,
+                    margin: const EdgeInsets.only(top: 30),
                     height: 120.0,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20.0),
@@ -138,7 +154,7 @@ class _HomePageState extends State<HomePage> {
                   Container(
                     width: MediaQuery.of(context).size.width,
                     height: 200.0,
-                    margin: const EdgeInsets.only(right: 200.0, bottom: 70.0),
+                    margin: const EdgeInsets.only(right: 200.0, bottom: 30.0),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20.0),
                       image: const DecorationImage(image: AssetImage("assets/figure.png")),
@@ -146,7 +162,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                   Container(
                     width: double.maxFinite,
-                    height: 100.0,
                     margin: const EdgeInsets.only(left: 150.0, top: 30.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,7 +185,89 @@ class _HomePageState extends State<HomePage> {
                   )
                 ],
               ),
-            )
+            ),
+            Row( 
+              children: [
+                Text("Area of foucs", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w500, color: AppColors.homePageTitle))
+              ]
+            ),
+            Expanded(child: OverflowBox(
+              maxWidth: MediaQuery.of(context).size.width,
+              child: MediaQuery.removePadding(
+                context: context,
+                removeTop: true,
+                child: ListView.builder(
+                  itemCount: (info.length.toDouble()/2).toInt(),
+                  itemBuilder: (_, i){
+                    log("SALIDA ${info.length}");
+                    int a = 2*i;
+                    int b = 2*i + 1;
+                    return Row(
+                      children: [
+                        Container(
+                          width: (MediaQuery.of(context).size.width-90)/2,
+                          height: 170.0,
+                          margin: const EdgeInsets.only(left: 30.0, bottom: 15.0, top: 15.0),
+                          padding: const EdgeInsets.only(bottom: 5.0),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15.0),
+                            image: DecorationImage(image: AssetImage(info[a]['img'])),
+                            boxShadow: [
+                              BoxShadow(
+                                blurRadius: 3,
+                                offset: const Offset(5, 5),
+                                color: AppColors.gradientSecond.withOpacity(0.1)
+                              ),
+                              BoxShadow(
+                                blurRadius: 3,
+                                offset: const Offset(-5, -5),
+                                color: AppColors.gradientSecond.withOpacity(0.1)
+                              )
+                            ]
+                          ),
+                          child: Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Text(
+                                info[a]['title'], style: TextStyle(fontSize: 20, color: AppColors.homePageDetail)
+                            )
+                          ),
+                        ),
+                        Container(
+                          width: (MediaQuery.of(context).size.width-90)/2,
+                          height: 170.0,
+                          margin: const EdgeInsets.only(left: 30.0, bottom: 15.0, top: 15.0),
+                          padding: const EdgeInsets.only(bottom: 5.0),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15.0),
+                            image: DecorationImage(image: AssetImage(info[b]['img'])),
+                            boxShadow: [
+                              BoxShadow(
+                                blurRadius: 3,
+                                offset: const Offset(5, 5),
+                                color: AppColors.gradientSecond.withOpacity(0.1)
+                              ),
+                              BoxShadow(
+                                blurRadius: 3,
+                                offset: const Offset(-5, -5),
+                                color: AppColors.gradientSecond.withOpacity(0.1)
+                              )
+                            ]
+                          ),
+                          child: Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Text(
+                                info[b]['title'], style: TextStyle(fontSize: 20, color: AppColors.homePageDetail)
+                            ),
+                          ),
+                        )
+                      ]
+                    );
+                  }
+                ),
+              ),
+            ))
           ],
         ),
       ),
