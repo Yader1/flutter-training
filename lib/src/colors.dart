@@ -21,7 +21,7 @@ class AppColors {
   static Color secondPageTitleColor = const Color(0xFFfefeff);
   static Color secondPageContainerGradient1stColor = const Color(0xFF6588f4);
   static Color secondPageContainerGradient2stColor = const Color(0xFF6588f4);
-  static Color secondPagePageIconColor = const Color(0xFFfafafe);
+  static Color secondPageIconColor = const Color(0xFFfafafe);
   static Color loopColor = const Color(0xFF6d8dea);
   static Color setsColor = const Color(0xFF9999a9);
   static Color circuitsColor = const Color(0xFF2f2f51);

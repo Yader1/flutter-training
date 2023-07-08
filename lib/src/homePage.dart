@@ -1,9 +1,10 @@
-
 import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:training_app/src/colors.dart';
+import 'package:training_app/src/videoInfo.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -53,7 +54,12 @@ class _HomePageState extends State<HomePage> {
                 Expanded(child: Container()),
                 Text("Details", style: TextStyle(fontSize: 20.0, color: AppColors.homePageDetail)),
                 const SizedBox(width: 5.0),
-                Icon(Icons.arrow_forward, size: 20.0, color: AppColors.homePageIcons),
+                InkWell(
+                  onTap: (){
+                    Get.to(()=>InfoVideoPage());
+                  },
+                    child: Icon(Icons.arrow_forward, size: 20.0, color: AppColors.homePageIcons)
+                ),
               ],
             ),
             const SizedBox(height: 20.0),
