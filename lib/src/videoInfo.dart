@@ -16,8 +16,8 @@ class InfoVideoPage extends StatefulWidget {
 
 class _InfoVideoPageState extends State<InfoVideoPage> {
   List videoInfo = [];
-  _initData(){
-    DefaultAssetBundle.of(context).loadString("json/videoInfo.json").then((value){
+  _initData() async {
+    await DefaultAssetBundle.of(context).loadString("json/videoInfo.json").then((value){
       videoInfo = json.decode(value);
     });
     log("SALIDA ${videoInfo.length}");
@@ -147,14 +147,50 @@ class _InfoVideoPageState extends State<InfoVideoPage> {
                       const SizedBox(width: 20.0,),
                     ],
                   ),
+                  const SizedBox(height: 20.0),
                   Expanded(child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
                     itemCount: videoInfo.length,
                       itemBuilder: (_, int index){
                         return GestureDetector(
                           onTap: (){
 
                           },
-                          child: Container(),
+                          child: Container(
+                            height: 135.0,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 80.0,
+                                      height: 80.0,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        image: DecorationImage(
+                                          image: AssetImage(videoInfo[index]["thumbnail"]),
+                                          fit: BoxFit.cover
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10.0),
+                                    Column(
+                                      children: [
+                                        Text(videoInfo[index]["title"], style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
+                                        const SizedBox(height: 10.0),
+                                        Padding(
+                                            padding: const EdgeInsets.only(top: 3.0),
+                                            child: Text(videoInfo[index]["time"], style: TextStyle(color: Colors.grey[500]))
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
                         );
                       }
                   ))
