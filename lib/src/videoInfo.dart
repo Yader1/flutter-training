@@ -15,12 +15,12 @@ class InfoVideoPage extends StatefulWidget {
 }
 
 class _InfoVideoPageState extends State<InfoVideoPage> {
-  List info = [];
+  List videoInfo = [];
   _initData(){
     DefaultAssetBundle.of(context).loadString("json/videoInfo.json").then((value){
-      info = json.decode(value);
+      videoInfo = json.decode(value);
     });
-    log("SALIDA ${info.length}");
+    log("SALIDA ${videoInfo.length}");
   }
 
   @override
@@ -51,6 +51,7 @@ class _InfoVideoPageState extends State<InfoVideoPage> {
               width: MediaQuery.of(context).size.width,
               height: 300.0,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
@@ -96,7 +97,7 @@ class _InfoVideoPageState extends State<InfoVideoPage> {
                       ),
                       const SizedBox(width: 20.0,),
                       Container(
-                        width: 250.0,
+                        width: 220.0,
                         height: 30.0,
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10.0),
@@ -145,10 +146,21 @@ class _InfoVideoPageState extends State<InfoVideoPage> {
                       ),
                       const SizedBox(width: 20.0,),
                     ],
-                  )
+                  ),
+                  Expanded(child: ListView.builder(
+                    itemCount: videoInfo.length,
+                      itemBuilder: (_, int index){
+                        return GestureDetector(
+                          onTap: (){
+
+                          },
+                          child: Container(),
+                        );
+                      }
+                  ))
                 ],
               ),
-            ))
+            )),
           ],
         ),
       ),
