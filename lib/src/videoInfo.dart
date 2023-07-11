@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:training_app/src/colors.dart';
+import 'package:video_player/video_player.dart';
 
 import 'homePage.dart';
 
@@ -15,7 +16,9 @@ class InfoVideoPage extends StatefulWidget {
 }
 
 class _InfoVideoPageState extends State<InfoVideoPage> {
+  bool _playArea = false;
   List videoInfo = [];
+  VideoPlayerController? _videoPlayerController;
   _initData() async {
     await DefaultAssetBundle.of(context).loadString("json/videoInfo.json").then((value){
       setState((){
@@ -35,7 +38,7 @@ class _InfoVideoPageState extends State<InfoVideoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: _playArea == false ? BoxDecoration(
           gradient: LinearGradient(
             colors: [
               AppColors.gradientFirst.withOpacity(0.9),
@@ -44,11 +47,13 @@ class _InfoVideoPageState extends State<InfoVideoPage> {
             begin: const FractionalOffset(0.0, 0.4),
             end: Alignment.topRight
           )
+        ) : BoxDecoration(
+          color: AppColors.gradientSecond
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
+            _playArea == false ? Container(
               padding: const EdgeInsets.only(top: 70.0, left: 30.0, right: 30.0),
               width: MediaQuery.of(context).size.width,
               height: 300.0,
@@ -125,6 +130,29 @@ class _InfoVideoPageState extends State<InfoVideoPage> {
                   )
                 ],
               ),
+            ) : Container(
+              child: Column(
+                children: [
+                  Container(
+                    height: 100.0,
+                    padding: const EdgeInsets.only(top: 50.0, left: 30.0, right: 30.0),
+                    child: Row(
+                      children: [
+                        InkWell(
+                          onTap: (){
+
+                          },
+                          child: Icon(Icons.arrow_back_ios, size: 20.0, color: AppColors.secondPageTopIconColor),
+                        ),
+                        Expanded(child: Container()),
+                        Icon(Icons.info_outline, size: 20.0, color: AppColors.secondPageTopIconColor),
+                      ],
+                    ),
+                  ),
+                  _playView(context),
+                  _controlView(context),
+                ],
+              ),
             ),
             Expanded(child: Container(
               decoration: const BoxDecoration(
@@ -160,6 +188,43 @@ class _InfoVideoPageState extends State<InfoVideoPage> {
     );
   }
 
+  Widget _playView(BuildContext context){
+    final controller = _videoPlayerController;
+
+    if(controller != null && controller.value.isInitialized){
+      return AspectRatio(
+        aspectRatio: 16/9,
+        child: VideoPlayer(controller),
+      );
+    }else{
+      return const AspectRatio(
+          aspectRatio: 16/9,
+          child: Center(
+              child: Text("Preparing...", style: TextStyle(fontSize: 20.0, color: Colors.white60))
+          )
+      );
+    }
+  }
+
+  _onTapVideoView(int index){
+    final controller = VideoPlayerController.network(videoInfo[index]["videoUrl"]);
+    _videoPlayerController = controller;
+    setState(() {
+
+    });
+    // ignore: avoid_single_cascade_in_expression_statements
+    controller..initialize().then((_){
+      controller.play();
+      setState(() {
+
+      });
+    });
+  }
+
+  _controlView(BuildContext context){
+
+  }
+
   _listView(){
     return ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
@@ -167,7 +232,12 @@ class _InfoVideoPageState extends State<InfoVideoPage> {
         itemBuilder: (_, int index){
           return GestureDetector(
             onTap: (){
-
+              _onTapVideoView(index);
+              setState(() {
+                if(_playArea == false){
+                  _playArea = true;
+                }
+              });
             },
             child: _buildCard(index),
           );
