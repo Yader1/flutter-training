@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_single_cascade_in_expression_statements
+
 import 'dart:convert';
 import 'dart:developer';
 
@@ -18,7 +20,11 @@ class InfoVideoPage extends StatefulWidget {
 class _InfoVideoPageState extends State<InfoVideoPage> {
   bool _playArea = false;
   List videoInfo = [];
+  bool _isPlaying = false;
+  bool _disposed = false;
+  int _isPlayingIndex = -1;
   VideoPlayerController? _videoPlayerController;
+
   _initData() async {
     await DefaultAssetBundle.of(context).loadString("json/videoInfo.json").then((value){
       setState((){
@@ -206,23 +212,99 @@ class _InfoVideoPageState extends State<InfoVideoPage> {
     }
   }
 
-  _onTapVideoView(int index){
+  var _onUpdateControllerTime;
+  void _onControllerUpdate() async {
+    if(_disposed){
+      return;
+    }
+    _onUpdateControllerTime = 0;
+    final now = DateTime.now().microsecondsSinceEpoch;
+
+    if(_onUpdateControllerTime > now){
+      return;
+    }
+
+    _onUpdateControllerTime = now+500;
+
+    final controller = _videoPlayerController;
+    if(controller == null){
+      return;
+    }
+
+    if(!controller.value.isInitialized){
+      return;
+    }
+
+    final playing = controller.value.isPlaying;
+    _isPlaying = playing;
+  }
+
+  _initializeVideo(int index){
     final controller = VideoPlayerController.network(videoInfo[index]["videoUrl"]);
+    final old = _videoPlayerController;
     _videoPlayerController = controller;
-    setState(() {
 
-    });
-    // ignore: avoid_single_cascade_in_expression_statements
+    if(old != null){
+      old.removeListener(_onControllerUpdate);
+      old.pause();
+    }
+    setState(() {});
     controller..initialize().then((_){
+      old?.dispose();
+      _isPlayingIndex = index;
+      controller.addListener(_onControllerUpdate);
       controller.play();
-      setState(() {
-
-      });
+      setState(() {});
     });
   }
 
-  _controlView(BuildContext context){
+  _onTapVideoView(int index){
+    _initializeVideo(index);
+  }
 
+  Widget _controlView(BuildContext context){
+    return Container(
+      height: 120.0,
+      width: MediaQuery.of(context).size.width,
+      color: AppColors.gradientSecond,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            onPressed: () async {
+              final index = _isPlayingIndex-1;
+
+              if(index >= 0 && videoInfo.length >= 0){
+                _initializeVideo(index);
+              }else{
+                Get.snackbar("Video", "No more video to play");
+              }
+            },
+            icon: const Icon(Icons.fast_rewind, size: 36.0, color: Colors.white),
+          ),
+          IconButton(
+            onPressed: () async {
+              if(_isPlaying){
+                setState(() {
+                  _isPlaying = false;
+                });
+                _videoPlayerController?.pause();
+              }else{
+                setState(() {
+                  _isPlaying = true;
+                });
+                _videoPlayerController?.play();
+              }
+            },
+            icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow, size: 36.0, color: Colors.white),
+          ),
+          IconButton(
+            onPressed: (){},
+            icon: const Icon(Icons.fast_forward, size: 36.0, color: Colors.white),
+          ),
+        ],
+      ),
+    );
   }
 
   _listView(){
@@ -313,5 +395,14 @@ class _InfoVideoPageState extends State<InfoVideoPage> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    _videoPlayerController?.pause();
+    _videoPlayerController?.dispose();
+    _videoPlayerController = null;
+    super.dispose();
   }
 }
