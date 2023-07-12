@@ -299,7 +299,15 @@ class _InfoVideoPageState extends State<InfoVideoPage> {
             icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow, size: 36.0, color: Colors.white),
           ),
           IconButton(
-            onPressed: (){},
+            onPressed: () async {
+              final index = _isPlayingIndex+1;
+
+              if(index <= videoInfo.length-1){
+                _initializeVideo(index);
+              }else{
+                Get.snackbar("Video List", "No more videos in the list");
+              }
+            },
             icon: const Icon(Icons.fast_forward, size: 36.0, color: Colors.white),
           ),
         ],
