@@ -263,13 +263,44 @@ class _InfoVideoPageState extends State<InfoVideoPage> {
   }
 
   Widget _controlView(BuildContext context){
+    final noMute = (_videoPlayerController?.value?.volume??0)>0;
     return Container(
-      height: 120.0,
+      height: 40,
       width: MediaQuery.of(context).size.width,
+      margin: const EdgeInsets.only(bottom: 5.0),
       color: AppColors.gradientSecond,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          InkWell(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+              child: Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      offset: Offset(0.0, 0.0),
+                      blurRadius: 4.0,
+                      color: Color.fromARGB(50, 0, 0, 0),
+                    )
+                  ]
+                ),
+                child: Icon(
+                  noMute ? Icons.volume_up : Icons.volume_off,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            onTap: (){
+              if(noMute){
+                _videoPlayerController?.setVolume(0);
+              }else{
+                _videoPlayerController?.setVolume(1.0);
+              }
+              setState(() {});
+            },
+          ),
           IconButton(
             onPressed: () async {
               final index = _isPlayingIndex-1;
