@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,6 +24,9 @@ class _InfoVideoPageState extends State<InfoVideoPage> {
   bool _isPlaying = false;
   bool _disposed = false;
   int _isPlayingIndex = -1;
+  String _curPos = "";
+  String _totalPos = "";
+  String _videoTime = "00:00";
   VideoPlayerController? _videoPlayerController;
 
   _initData() async {
@@ -31,7 +35,6 @@ class _InfoVideoPageState extends State<InfoVideoPage> {
         videoInfo = json.decode(value);
       });
     });
-    log("SALIDA ${videoInfo.length}");
   }
 
   @override
@@ -146,7 +149,7 @@ class _InfoVideoPageState extends State<InfoVideoPage> {
                       children: [
                         InkWell(
                           onTap: (){
-
+                            Get.back();
                           },
                           child: Icon(Icons.arrow_back_ios, size: 20.0, color: AppColors.secondPageTopIconColor),
                         ),
@@ -264,99 +267,121 @@ class _InfoVideoPageState extends State<InfoVideoPage> {
 
   Widget _controlView(BuildContext context){
     final noMute = (_videoPlayerController?.value?.volume??0)>0;
-    return Container(
-      height: 40,
-      width: MediaQuery.of(context).size.width,
-      margin: const EdgeInsets.only(bottom: 5.0),
-      color: AppColors.gradientSecond,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          InkWell(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-              child: Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      offset: Offset(0.0, 0.0),
-                      blurRadius: 4.0,
-                      color: Color.fromARGB(50, 0, 0, 0),
-                    )
-                  ]
-                ),
-                child: Icon(
+    //final duration = _duration?.inSeconds ?? 0;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        VideoProgressIndicator(
+          _videoPlayerController!,
+          allowScrubbing: true,
+          colors: const VideoProgressColors(playedColor: Colors.red),
+        ),
+        /*SliderTheme(
+          //_videoPlayerController!,
+          //allowScrubbing: true,
+          //colors: const VideoProgressColors(playedColor: Colors.red),
+          data: SliderTheme.of(context).copyWith(
+            activeTickMarkColor: Colors.red[700],
+            inactiveTickMarkColor: Colors.red[100],
+            trackHeight: 2.0,
+            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12.0),
+            thumbColor: Colors.redAccent,
+            valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
+            valueIndicatorColor: Colors.redAccent,
+            valueIndicatorTextStyle: const TextStyle(
+              color: Colors.white
+            ),
+          ),
+          child: Slider(
+            value: max(0, min(_progress * 100, 100)),
+            min: 0,
+            max: 100,
+            onChanged: (double value) {  },
+          ),
+        ),*/
+        Container(
+          height: 40,
+          width: MediaQuery.of(context).size.width,
+          margin: const EdgeInsets.only(bottom: 5.0),
+          color: AppColors.gradientSecond,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                onPressed: () async {
+                  if(noMute){
+                    _videoPlayerController?.setVolume(0);
+                  }else{
+                    _videoPlayerController?.setVolume(1.0);
+                  }
+                  setState(() {});
+                },
+                icon: Icon(
                   noMute ? Icons.volume_up : Icons.volume_off,
-                  color: Colors.white,
+                  color: Colors.white, size: 36.0
                 ),
               ),
-            ),
-            onTap: (){
-              if(noMute){
-                _videoPlayerController?.setVolume(0);
-              }else{
-                _videoPlayerController?.setVolume(1.0);
-              }
-              setState(() {});
-            },
-          ),
-          IconButton(
-            onPressed: () async {
-              final index = _isPlayingIndex-1;
+              const SizedBox(width: 20.0),
+              IconButton(
+                onPressed: () async {
+                  final index = _isPlayingIndex-1;
 
-              if(index >= 0 && videoInfo.length >= 0){
-                _initializeVideo(index);
-              }else{
-                Get.snackbar(
-                  "Video List", "",
-                  snackPosition: SnackPosition.BOTTOM,
-                  icon: const Icon(Icons.face, size: 30.0, color: Colors.white),
-                  backgroundColor: AppColors.gradientSecond,
-                  colorText: Colors.white,
-                  messageText: const Text("No videos ahead !", style: TextStyle(fontSize: 20.0, color: Colors.white)),
-                );
-              }
-            },
-            icon: const Icon(Icons.fast_rewind, size: 36.0, color: Colors.white),
-          ),
-          IconButton(
-            onPressed: () async {
-              if(_isPlaying){
-                setState(() {
-                  _isPlaying = false;
-                });
-                _videoPlayerController?.pause();
-              }else{
-                setState(() {
-                  _isPlaying = true;
-                });
-                _videoPlayerController?.play();
-              }
-            },
-            icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow, size: 36.0, color: Colors.white),
-          ),
-          IconButton(
-            onPressed: () async {
-              final index = _isPlayingIndex+1;
+                  if(index >= 0 && videoInfo.length >= 0){
+                    _initializeVideo(index);
+                  }else{
+                    Get.snackbar(
+                      "Video List", "",
+                      snackPosition: SnackPosition.BOTTOM,
+                      icon: const Icon(Icons.face, size: 30.0, color: Colors.white),
+                      backgroundColor: AppColors.gradientSecond,
+                      colorText: Colors.white,
+                      messageText: const Text("No videos ahead !", style: TextStyle(fontSize: 20.0, color: Colors.white)),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.fast_rewind, size: 36.0, color: Colors.white),
+              ),
+              const SizedBox(width: 20.0),
+              IconButton(
+                onPressed: () async {
+                  if(_isPlaying){
+                    setState(() {
+                      _isPlaying = false;
+                    });
+                    _videoPlayerController?.pause();
+                  }else{
+                    setState(() {
+                      _isPlaying = true;
+                    });
+                    _videoPlayerController?.play();
+                  }
+                },
+                icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow, size: 36.0, color: Colors.white),
+              ),
+              const SizedBox(width: 20.0),
+              IconButton(
+                onPressed: () async {
+                  final index = _isPlayingIndex+1;
 
-              if(index <= videoInfo.length-1){
-                _initializeVideo(index);
-              }else{
-                Get.snackbar(
-                  "Video List", "",
-                  snackPosition: SnackPosition.BOTTOM,
-                  icon: const Icon(Icons.face, size: 30.0, color: Colors.white),
-                  backgroundColor: AppColors.gradientSecond,
-                  colorText: Colors.white,
-                  messageText: const Text("You have finished watching all the videos. Congrats !", style: TextStyle(fontSize: 20.0, color: Colors.white)),
-                );
-              }
-            },
-            icon: const Icon(Icons.fast_forward, size: 36.0, color: Colors.white),
+                  if(index <= videoInfo.length-1){
+                    _initializeVideo(index);
+                  }else{
+                    Get.snackbar(
+                      "Video List", "",
+                      snackPosition: SnackPosition.BOTTOM,
+                      icon: const Icon(Icons.face, size: 30.0, color: Colors.white),
+                      backgroundColor: AppColors.gradientSecond,
+                      colorText: Colors.white,
+                      messageText: const Text("You have finished watching all the videos. Congrats !", style: TextStyle(fontSize: 20.0, color: Colors.white)),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.fast_forward, size: 36.0, color: Colors.white),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
